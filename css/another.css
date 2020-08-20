@@ -1,0 +1,28 @@
+.active { background: #6898d6; color:#eee; border-bottom: 1px solid #6898d6 }
+.normal { background: #fff; }
+section > .cover { height: 100%; }
+
+section.area { margin-top: 30px; min-height: 100px; }
+section.area .cover { align-items: center; }
+section.area span { display: inline-block; position: absolute; left: 20px; z-index: 3; top: 9px;  }
+section.area span i { cursor: pointer; }
+section.area input { width: 300px; height: 40px; border: 2px solid #555; font-weight: bold; border-radius: 25px; padding:14px 10px 10px 50px; outline-style: none; transition: .1s;  }
+section.area .search-list { min-height: 60px; margin-top: 5px; position: relative; z-index: 3; padding-left: 15px; }
+section.area .search-list .list { width: 270px; height: 30px; text-align: center; align-items: center; border-bottom: 1px solid #555;  }
+section.area .appendHashErr { margin-top: 10px; }
+section.area .appendHash { width: 100%; }
+section.area .appendHash .hash{ padding:0px 5px; margin:5px 5px; min-width: 120px; height: 30px; border-radius: 25px; line-height: 30px; background: #6898d6; }
+section.area .appendHash .hash button { border: none; background: #6898d6; color:#eee; display: inline-block; cursor: pointer; margin-left: 10px; }
+section.area .appendHash .hash p { color:#eee; font-size: 14px; }
+
+section.contents { min-height: 550px; height: auto;}
+section.contents .cover {min-height: 100%; height: auto; grid-template-columns: repeat(3, 450px); grid-auto-rows: 340px; }
+section.contents .content { height: 330px; margin: 10px; border:1px solid #555; padding: 5px; }
+section.contents .content .img-box { width: 50%; height: 100%; padding-right: 5px; }
+section.contents .content .img-box img { width: 100%; height: 100%; object-fit: cover; }
+section.contents .content .box { width: 50%; }
+section.contents .content .box p{ padding:6px 0px; }
+section.contents .content .box span.hash { padding:0px 5px; }
+section.contents .content .box button { transition: .5s; position: absolute; cursor: pointer; right: 0; bottom: 0; padding:5px 25px; border-radius: 25px; border:1px solid #6898d6; background: #6898d6; color:#eee; }
+section.contents .content .box button:hover { transform: scale(1.05); }
+
