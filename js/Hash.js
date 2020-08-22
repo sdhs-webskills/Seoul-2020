@@ -1,15 +1,15 @@
+import Templates from "./Templates.js";
+
 String.prototype.replaceAll = function(find, replace) {
 	return this.split(find).join(replace);
 }
-
-import DOM from "/js/Dom.js";
 
 export default class Hash {
 	#li;
 	#val;
 	#len;
 	constructor(target, data, hashArr) {
-		this.dom = new DOM();
+		this.dom = new Templates();
 		this.target = target;
 		this.data = data;
 		this.hashArr = hashArr;

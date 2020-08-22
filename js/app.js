@@ -1,54 +1,45 @@
-import Hash from "/js/Hash.js";
-import DOM from "/js/Dom.js";
+import Hash from "./Hash.js";
+import $ from './jquery-3.4.1.min.js';
+import Templates from "./Templates.js";
 
-(() => {
-	class App {
-		#data;
-		#hash;
-		constructor() {
-			this.hashArr = [];
-			this.dom = new DOM();
+class App {
+	#data; #hash; #hashArr; #templates;
 
-			fetch("/json/papers.json")
-			.then(file => file.json())
-			.then(data => this.init(data))
-		}
+	constructor(templates) {
+		this.#hashArr = [];
+		this.#templates = templates;
 
-		Create = ({id, image, paper_name, company_name, width_size, height_size, point, hash_tags}) => {
-			$(".contents .cover").append(this.dom.mainList({
-				id:id,
-				src:`/imgs/papers/${image}`,
-				paper_name:paper_name,
-				company_name:company_name,
-				width_size:width_size,
-				height_size:height_size,
-				point:point,
-				hash_tags:hash_tags.map(v => `<span class="hash">${v}</span>`)
-			}));
-		}
+		fetch("/json/papers.json")
+			.then(response => response.json())
+			.then(this.init)
+	}
 
-		buyBtn = e => {
-			let tg = $(e.target);
-			console.log(tg);
-		}
+	Create ({ image, ...property }) {
+		$(".contents .cover").append(this.#templates.renderMainList({
+			...property,
+			src: `/imgs/papers/${image}`
+		}));
+	}
 
-		event = _ => {
-			
-		}
+	buyBtn (e) {
+		let tg = $(e.target);
+		console.log(tg);
+	}
 
-		init = data => {
-			this.data = data;
-			this.data.forEach(v => {
-				this.hashArr.push(...v.hash_tags);
-				this.Create(v);
-			});
-
-			this.hashArr = Array.from(new Set(this.hashArr));
-			this.hash = new Hash(".online_store", this.data, this.hashArr);
-			this.event();
-		}
+	event () {
 
 	}
 
-	window.onload = _ => window.app = new App();
-})();
+	init (data) {
+		this.#data = data;
+		this.#data.forEach(this.Create);
+		this.#hashArr = [ ...new Set(data.flatMap(v => v.hash_tags)) ]
+		this.#hash = new Hash(".online_store", this.#data, this.#hashArr);
+		this.event();
+	}
+
+}
+
+window.onload = () => {
+	window.app = new App(new Templates());
+}
