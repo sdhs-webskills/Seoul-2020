@@ -3,19 +3,17 @@ import $ from './jquery-3.4.1.min.js';
 import Templates from "./Templates.js";
 
 class App {
-	#data; #hash; #hashArr; #templates;
+	#data; #renderer;
 
-	constructor(templates) {
-		this.#hashArr = [];
-		this.#templates = templates;
-
-		fetch("/json/papers.json")
-			.then(response => response.json())
-			.then(this.init)
+	constructor(data, renderer) {
+		this.#data = data;
+		this.#renderer = renderer;
+		this.#data.forEach(this.init)
+		this.event();
 	}
 
-	Create ({ image, ...property }) {
-		$(".contents .cover").append(this.#templates.renderMainList({
+	init ({ image, ...property }) {
+		$(".contents .cover").append(this.#renderer({
 			...property,
 			src: `/imgs/papers/${image}`
 		}));
@@ -26,20 +24,13 @@ class App {
 		console.log(tg);
 	}
 
-	event () {
-
-	}
-
-	init (data) {
-		this.#data = data;
-		this.#data.forEach(this.Create);
-		this.#hashArr = [ ...new Set(data.flatMap(v => v.hash_tags)) ]
-		this.#hash = new Hash(".online_store", this.#data, this.#hashArr);
-		this.event();
-	}
-
+	event () {}
 }
 
-window.onload = () => {
-	window.app = new App(new Templates());
+window.onload = async () => {
+	const data = await fetch("/json/papers.json").then(response => response.json());
+	const hashData = [ ...new Set(data.flatMap(v => v.hash_tags)) ];
+	const templates = new Templates();
+	window.hash = new Hash('.online_store', data, hashData, templates.renderMainList);
+	window.app = new App(data, templates.renderHashTags);
 }
