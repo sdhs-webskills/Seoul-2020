@@ -1,8 +1,6 @@
-import Templates from "./Templates.js";
-
 export default class Hash {
 	#li; #val; #listLength; #target; #data; #hashData; #renderer;
-	#eq; #appendHashArr; #valueLength; #input;
+	#eq; #appendHashArr; #valueLength; #input; #searchList;
 
 	constructor(target, data, hashData, renderer) {
 		this.#target = target;
@@ -12,6 +10,7 @@ export default class Hash {
 		this.#appendHashArr = [];
 		this.#input = $(`${target} input[name='search']`);
 		this.#valueLength = 0;
+		this.#searchList = $('.search-list');
 
 		this.event();
 	}
@@ -46,7 +45,7 @@ export default class Hash {
 			(hashError.hasClass('errNum') && valueLength === 0)
 		) $(".appendHashErr").empty();
 
-		$(".search-list").html(
+		this.#searchList.html(
 			this.#hashData
 			    .filter(v => v.includes(this.#val) && v[1] === this.#val[0] && valueLength >= 2 )
 			    .map(v => `<div class="normal list rel">${v}</div>`)
@@ -58,18 +57,20 @@ export default class Hash {
 	}
 
 	appendRemoveCss = _ => { // 임시로
-		if(this.#listLength === 0) {
-			this.li = this.#val
-		}else {
-			if(this.#eq == -1) this.li = this.#val
-			else {
-				this.li = $(".search-list .list")
-					.css({background:"#fff", color:"#555"})
-					.eq(this.#eq).css({background:"#6898d6", color:"#eee"})
-					.text().trim().replace("#", "");
-				this.#val = this.li;
-			}
+		if (this.#listLength === 0 || this.#eq === -1) {
+			this.#li = this.#val
+			return;
 		}
+
+		const target = $(".list", this.#searchList)
+		                  .css({background: "#fff", color: "#555"})
+			                .eq(this.#eq)
+			                   .css({background: "#6898d6", color: "#eee"});
+
+		this.#val =
+		this.#li  = target.text()
+		                  .trim()
+		                  .replace("#", "");
 	}
 
 	appendHash = _ => {// 조건에 맞을 시 Hash 태그 추가하기
