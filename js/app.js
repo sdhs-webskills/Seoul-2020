@@ -3,20 +3,23 @@ import $ from './jquery-3.4.1.min.js';
 import Templates from "./Templates.js";
 
 class App {
-	#data; #renderer;
+	#data; #renderer; #cover;
 
 	constructor(data, renderer) {
 		this.#data = data;
 		this.#renderer = renderer;
-		this.#data.forEach(this.init)
+		this.#cover = $(".contents .cover");
+		this.#data.forEach(data => this.init(data));
 		this.event();
 	}
 
 	init ({ image, ...property }) {
-		$(".contents .cover").append(this.#renderer({
+		const template = this.#renderer({
 			...property,
 			src: `/imgs/papers/${image}`
-		}));
+		});
+		console.log(template);
+		this.#cover.append(template);
 	}
 
 	buyBtn (e) {
