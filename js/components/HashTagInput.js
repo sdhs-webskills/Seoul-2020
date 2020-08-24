@@ -94,6 +94,7 @@ export class HashTagInput {
         case ' ':
         case 'Tab':
         case 'Enter':
+          if (e.target.value.length === 0) return;
           this.appendTag();
           e.preventDefault();
           break;
@@ -147,10 +148,7 @@ export class HashTagInput {
   }
 
   setState (args) {
-    this.#state = {
-      ...this.#state,
-      ...args
-    };
+    this.#state = { ...this.#state, ...args };
     this.#render();
     this.#event();
   }

@@ -56,6 +56,11 @@ export class Papers {
   }
 
   search = hashTags => {
-    console.log(hashTags);
+    const papers = PapersService.get();
+    this.setState({
+      papers: hashTags.length > 0
+                ? papers.filter(({ hash_tags }) => hash_tags.filter(v => hashTags.indexOf(v) !== -1).length > 0)
+                : papers,
+    })
   }
 }
