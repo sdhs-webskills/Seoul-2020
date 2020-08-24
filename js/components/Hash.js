@@ -1,87 +1,63 @@
 export class Hash {
-	#li; #val; #listLength; #target; #data; #hashData; #renderer;
-	#eq; #appendHashArr; #valueLength; #input; #searchList;
-
-	constructor(target, data, hashData, renderer) {
-		this.#target = target;
-		this.#hashData = hashData;
-		this.#renderer = renderer;
-		this.#eq = -1;
-		this.#appendHashArr = [];
-		this.#input = $(`${target} input[name='search']`);
-		this.#valueLength = 0;
-		this.#searchList = $('.search-list');
+	#li;
+	#val;
+	#len;
+	constructor(target, data, hashArr) {
+		this.dom = new DOM();
+		this.target = target;
+		this.data = data;
+		this.hashArr = hashArr;
+		this.eq = -1;
+		this.appendHashArr = [];
+		this.input = $(`${this.target} input[name='search']`);
+		this.strLen = 0;
 
 		this.event();
 	}
 
-	Result () {
-		this.#data.forEach(({ hash_tags }) => {
-			this.#appendHashArr
-					.filter(hash => hash_tags.includes(hash))
-				  .forEach(console.log);
-		})
-	}
+	Search = e => { // 검색
+		this.val = this.input.val();
 
-	event () { // test
-		const { target, Search, keyDown, Result, removeHash } = this;
-		$(document)
-		   .on("input", `${target} input[name='search']`, Search)
-		   .on("keydown", `${target} input[name='search']`, keyDown)
-		   .on("click", `${target} .searchBtn i`, Result)
-		   .on("click", ".removeHash", removeHash)
-	}
+		this.input.val(this.val.replace(this.val.replace(new RegExp(/^([a-zA-Z0-9ㄱ-ㅎ가-힣_]{0,30})/, "u"), ""), ''));
+		this.val = this.input.val();
 
-	Search = () => { // 검색
-		const value = this.#val;
-		this.#val = value.replace(value.replace(new RegExp(/^([a-zA-Z0-9ㄱ-ㅎ가-힣_]{0,30})/, "u"), ""), '');
-		this.#input.val(this.#val);
+		if($(".appendHashErr p").hasClass('errAppend') && this.strLen.length != this.val.length)  $(".appendHashErr").empty();
+		if($(".appendHashErr p").hasClass('errNum') && this.val.length == 0)  $(".appendHashErr").empty();
 
-		const hashError = $(".appendHashErr p");
-		const valueLength = this.#val.length;
+		this.strLen = this.val.length;
 
-		if(
-			(hashError.hasClass('errAppend') && this.#valueLength !== valueLength) ||
-			(hashError.hasClass('errNum') && valueLength === 0)
-		) $(".appendHashErr").empty();
-
-		this.#searchList.html(
-			this.#hashData
-			    .filter(v => v.includes(this.#val) && v[1] === this.#val[0] && valueLength >= 2 )
-			    .map(v => `<div class="normal list rel">${v}</div>`)
-			    .join('')
-		);
-
-		this.#listLength = $(".search-list .list").length;
+		$(".search-list").empty();
+		this.hashArr.filter(v => v.includes(this.val) && v[1] == this.val[0] && this.val.length >= 2 ).forEach(v => {
+			$(".search-list").append(`<div class="normal list rel">${v}</div>`);
+		} );
+		this.len = $(".search-list .list").length;
 
 	}
 
 	appendRemoveCss = _ => { // 임시로
-		if (this.#listLength === 0 || this.#eq === -1) {
-			this.#li = this.#val
-			return;
+		if(this.len == 0) {
+			this.li = this.val
+		}else {
+			if(this.eq == -1) this.li = this.val
+			else {
+				this.li = $(".search-list .list")
+					.css({background:"#fff", color:"#555"})
+					.eq(this.eq).css({background:"#6898d6", color:"#eee"})
+					.text().trim().replace("#", "");
+				this.val = this.li;
+			}
 		}
-
-		const target = $(".list", this.#searchList)
-		                  .css({background: "#fff", color: "#555"})
-			                .eq(this.#eq)
-			                   .css({background: "#6898d6", color: "#eee"});
-
-		this.#val =
-		this.#li  = target.text()
-		                  .trim()
-		                  .replace("#", "");
 	}
 
 	appendHash = _ => {// 조건에 맞을 시 Hash 태그 추가하기
 		const errDom = $(".appendHashErr");
-		let name = this.#val.includes("#") ? this.#val : "#"+this.#val;
-		console.log(this.#appendHashArr, name);
-		if(this.#appendHashArr.length == 10) return errDom.html(`<p class="errNum">태그는 10개까지만 추가할 수 있습니다.</p>`);
-		else if(this.#appendHashArr.filter(v => v == name).length > 0) return errDom.html(`<p class="errAppend">이미 추가한 태그입니다.</p>`);
+		let name = this.val.includes("#") ? this.val : "#"+this.val;
+		console.log(this.appendHashArr, name);
+		if(this.appendHashArr.length == 10) return errDom.html(`<p class="errNum">태그는 10개까지만 추가할 수 있습니다.</p>`);
+		else if(this.appendHashArr.filter(v => v == name).length > 0) return errDom.html(`<p class="errAppend">이미 추가한 태그입니다.</p>`);
 		else errDom.html(``);
 
-		this.#appendHashArr.push(name);
+		this.appendHashArr.push(name);
 		$(".appendHash").append(this.dom.getHashTags(name));
 	}
 
@@ -102,17 +78,17 @@ export class Hash {
 
 			case 38: //up
 				e.preventDefault();
-				if(this.#eq <= 0) this.#eq = (this.#listLength - 1);
-				else this.#eq = this.#eq - 1;
+				if(this.eq <= 0) this.eq = (this.len - 1);
+				else this.eq = this.eq - 1;
 				this.appendRemoveCss();
 				break;
 
 			case 40: //down
 				e.preventDefault();
-				if(this.#eq >= (this.#listLength - 1)) this.#eq = 0;
-				else this.#eq = this.#eq + 1;
+				if(this.eq >= (this.len - 1)) this.eq = 0;
+				else this.eq = this.eq + 1;
 				this.appendRemoveCss();
-				console.log(this.#eq);
+				console.log(this.eq);
 				break;
 		}
 	}
@@ -120,7 +96,23 @@ export class Hash {
 	removeHash = e => { // 추가한 해시태그 지우기
 		const tg = $(e.target);
 
-		this.#appendHashArr.splice(this.#appendHashArr.indexOf(tg.text().trim()), 1);
+		this.appendHashArr.splice(this.appendHashArr.indexOf(tg.text().trim()), 1);
 		tg.parents(".hash").remove();
+	}
+
+	Result = _ => {
+		this.data.forEach((i, iIdx) => {
+			this.appendHashArr.filter((j, jIdx) => i.hash_tags.includes(j)).forEach((j, jIdx) => {
+				console.log(j);
+			})
+		})
+	}
+
+	event = _ => { // test
+		$(document)
+			.on("input", `${this.target} input[name='search']`, this.Search)
+			.on("keydown", `${this.target} input[name='search']`, this.keyDown)
+			.on("click", this.target+" .searchBtn i", this.Result)
+			.on("click", ".removeHash", this.removeHash)
 	}
 }

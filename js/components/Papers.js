@@ -1,20 +1,12 @@
 import $ from "../jquery-3.4.1.min.js";
+import { PapersService } from "../services/index.js";
 
 export class Papers {
   #state; #target;
 
-  constructor (papers) {
-    this.#state = {
-      papers: papers.map(property => ({
-        ...property,
-        get src () {
-          return `/imgs/papers/${property.image}`;
-        }
-      }))
-    }
+  constructor () {
     this.#target = $(".contents .cover");
-    this.#render();
-    this.#event();
+    PapersService.load().then(papers => this.setState({ papers }));
   }
 
   #render () {
@@ -32,7 +24,7 @@ export class Papers {
 					</div>
 				</div>
 			`)
-    )
+    );
   }
 
   #event () {
@@ -41,5 +33,18 @@ export class Papers {
         const index = $(e.target).parents('.content').index();
         console.log(this.#state.papers[index]);
       })
+  }
+
+  setState ({ papers }) {
+    this.#state = {
+      papers: papers.map(property => ({
+        ...property,
+        get src () {
+          return `/imgs/papers/${property.image}`;
+        }
+      }))
+    }
+    this.#render();
+    this.#event();
   }
 }
