@@ -1,14 +1,19 @@
 import $ from "../jquery-3.4.1.min.js";
 import { PapersService } from "../services/index.js";
+import { HashTagInput } from './HashTagInput.js';
+import { EventBus } from '../EventBus.js';
 
 export class Papers {
-  #state; #target;
+  #state; #target; #searchInput;
 
-  constructor () {
-    this.#target = $(".contents .cover");
+  constructor (target = $(".contents .cover"), hashTarget = $('.searchCover')) {
+    this.#target = target;
+    this.#searchInput = new HashTagInput(hashTarget);
     this.setState({
       papers: PapersService.get(),
-    })
+    });
+
+    EventBus.$on('search', papers => this.setState({ papers }));
   }
 
   #render () {
@@ -25,7 +30,7 @@ export class Papers {
 						<button type="button" class="buyBtn">구매하기</button>
 					</div>
 				</div>
-			`)
+			`).join('')
     );
   }
 
