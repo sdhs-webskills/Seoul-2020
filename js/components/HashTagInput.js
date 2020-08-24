@@ -84,11 +84,7 @@ export class HashTagInput {
     const searched = query.length > 1
                       ? HashService.get().filter(tag => tag.indexOf(query) === 1)
                       : [];
-    this.setState({
-      ...this.#state,
-      searched,
-      selectedHash: -1
-    });
+    this.setState({ searched, selectedHash: -1 });
   }
 
   selectHash = e => {
@@ -98,14 +94,7 @@ export class HashTagInput {
         case ' ':
         case 'Tab':
         case 'Enter':
-          this.validate();
-          this.setState({
-            ...this.#state,
-            selectedHash: -1,
-            searched: [],
-            appended: [ ...this.#state.appended, this.hashTagValue ]
-          })
-          this.#target.input.val('');
+          this.appendTag();
           e.preventDefault();
           break;
         case 'ArrowUp':
@@ -115,8 +104,18 @@ export class HashTagInput {
           break;
       }
     } catch (tagSearchError) {
-      this.setState({ ...this.#state, tagSearchError });
+      this.setState({ tagSearchError });
     }
+  }
+
+  appendTag () {
+    this.validate();
+    this.setState({
+      selectedHash: -1,
+      searched: [],
+      appended: [ ...this.#state.appended, this.hashTagValue ]
+    })
+    this.#target.input.val('');
   }
 
   validate () {
@@ -133,23 +132,24 @@ export class HashTagInput {
     let selectedHash = this.#state.selectedHash + increment;
     if (selectedHash < 0) selectedHash = this.searchedCount - 1;
     if (selectedHash >= this.searchedCount) selectedHash = 0;
-    this.setState({
-      ...this.#state,
-      selectedHash
-    });
+    this.setState({ selectedHash });
   }
 
   searchResult = e => {
-    EventBus.$emit('searchPaper', this.#state.hashTags)
+    EventBus.$emit('searchPaper', this.#state.appended);
   }
 
   removeHash = e => {
-
+    const idx = $(e.target).parent().index();
+    const appended = [ ...this.#state.appended ];
+    appended.splice(idx, 1);
+    this.setState({ appended });
   }
 
-  setState (state) {
+  setState (args) {
     this.#state = {
-      ...state
+      ...this.#state,
+      ...args
     };
     this.#render();
     this.#event();
