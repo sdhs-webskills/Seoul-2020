@@ -7,7 +7,6 @@ export const PapersService = {
     const papers = await fetch('/json/papers.json').then(response => response.json());
     HashService.load(papers);
     this.set(papers);
-    return papers;
   },
 
   set (papers) {

@@ -6,7 +6,9 @@ export class Papers {
 
   constructor () {
     this.#target = $(".contents .cover");
-    PapersService.load().then(papers => this.setState({ papers }));
+    this.setState({
+      papers: PapersService.get(),
+    })
   }
 
   #render () {
