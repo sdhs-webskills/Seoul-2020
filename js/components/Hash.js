@@ -1,4 +1,4 @@
-export default class Hash {
+export class Hash {
 	#li; #val; #listLength; #target; #data; #hashData; #renderer;
 	#eq; #appendHashArr; #valueLength; #input; #searchList;
 
