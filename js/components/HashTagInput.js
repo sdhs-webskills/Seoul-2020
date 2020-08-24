@@ -1,6 +1,11 @@
 import { EventBus } from "../EventBus.js";
 import { HashService } from "../services/HashService.js";
 
+const error = {
+  already: { state: 'errAppend', text: '이미 추가한 태그입니다.' },
+  maximum: { state: 'errNum', text: '태그는 10개까지만 추가할 수 있습니다.' }
+}
+
 export class HashTagInput {
 
   #target; #state; #wrapper;
@@ -23,8 +28,13 @@ export class HashTagInput {
     });
   }
 
-  get hashTagsCount () {
-    return this.#state.hashTags.length;
+  get searchedCount () {
+    return this.#state.searched.length;
+  }
+
+  get selected () {
+    const { searched, selectedHash } = this.#state;
+    return searched[selectedHash];
   }
 
   #render () {
@@ -68,30 +78,56 @@ export class HashTagInput {
   searchHash = ({ target }) => {
     const query = target.value.replace(/([^a-zA-Z0-9ㄱ-ㅎ가-힣_]+)/gi, '');
     target.value = query;
-    if (query.length < 2) return;
-    const searched = HashService.get().filter(tag => tag.indexOf(query) === 1);
-    this.setState({ ...this.#state, searched });
+    const searched = query.length > 1
+                      ? HashService.get().filter(tag => tag.indexOf(query) === 1)
+                      : [];
+    this.setState({
+      ...this.#state,
+      searched,
+      selectedHash: -1
+    });
   }
 
-  validate () {}
-
   selectHash = ({ key }) => {
-    switch (key) {
-      case ' ':
-      case 'Tab':
-        console.log('submit');
-        break;
-      case 'ArrowUp':
-      case 'ArrowDown':
-        this.changeSelectedHash((key === 'ArrowUp') * 1);
-        break;
+    try {
+      switch (key) {
+        case ' ':
+        case 'Tab':
+          console.log('submit');
+          break;
+        case 'ArrowUp':
+        case 'ArrowDown':
+          this.changeSelectedHash(key === 'ArrowDown' ? 1 : -1);
+          break;
+        case 'Enter':
+          this.validate();
+          this.setState({
+            ...this.#state,
+            selectedHash: -1,
+            searched: [],
+            appended: [ ...this.#state.appended, this.selected ]
+          })
+          break;
+      }
+    } catch (tagSearchError) {
+      this.setState({ ...this.#state, tagSearchError });
+    }
+  }
+
+  validate () {
+    const { appended } = this.#state;
+    if (appended.length === 10) {
+      throw error.maximum;
+    }
+    if (appended.find(v => v.includes(this.selected))) {
+      throw error.already;
     }
   }
 
   changeSelectedHash (increment) {
     let selectedHash = this.#state.selectedHash + increment;
-    if (selectedHash < 0) selectedHash = this.hashTagsCount - 1;
-    if (selectedHash >= this.hashTagsCount) selectedHash = 0;
+    if (selectedHash < 0) selectedHash = this.searchedCount - 1;
+    if (selectedHash >= this.searchedCount) selectedHash = 0;
     this.setState({
       ...this.#state,
       selectedHash
