@@ -1,5 +1,5 @@
 import $ from "../jquery-3.4.1.min.js";
-import { PapersService } from "../services/index.js";
+import { PapersService } from "../services/PapersService.js";
 import { HashTagInput } from './HashTagInput.js';
 import { EventBus } from '../EventBus.js';
 
@@ -13,7 +13,7 @@ export class Papers {
       papers: PapersService.get(),
     });
 
-    EventBus.$on('search', this.search);
+    EventBus.$on('searchPaper', this.search);
   }
 
   #render () {
@@ -55,7 +55,7 @@ export class Papers {
     this.#event();
   }
 
-  search = hashList => {
-
+  search = hashTags => {
+    console.log(hashTags);
   }
 }

@@ -1,20 +1,27 @@
+import { EventBus } from "../EventBus.js";
+
 export class HashTagInput {
 
-  #target; #state;
+  #target; #state; #wrapper;
 
-  constructor (target) {
-    this.#target = target;
+  constructor (wrapper) {
+    this.#wrapper = wrapper;
+    this.#target = $('.search-list', this.#wrapper);
     this.setState({
-      hashList: [],
+      hashTags: [],
       selectedHash: -1,
     });
   }
 
+  get hashTagsCount () {
+    return this.#state.hashTags.length;
+  }
+
   #render () {
-    const { hashList } = this.#state;
+    const { hashTags, selectedHash } = this.#state;
     this.#target.html(
-      hashList.map(hash => `
-        <div class="hash flex center align left rel">
+      hashTags.map((hash, key) => `
+        <div class="hash flex center align left rel" ${key === selectedHash ? ` style="background: #6898d6; color: #eee"` : ''}>
           <p>${hash}</p>
           <button class="removeHash">X</button>
         </div>
@@ -23,25 +30,43 @@ export class HashTagInput {
   }
 
   #event () {
-
-    this.#target
+    this.#wrapper
+        .off() // 모든 이벤트 제거 후 다시 등록
         .on('input', `input[name='search']`, this.searchHash)
         .on('keydown', `input[name='search']`, this.selectHash)
         .on('click', '.searchBtn i', this.searchResult)
-        .on('click', '.removeHash', this.removeHash)
+        .on('click', '.removeHash', this.removeHash);
+  }
+
+  searchHash = () => {
 
   }
 
-  selectHash = e => {
+  selectHash = ({ key }) => {
+    switch (key) {
+      case ' ':
+      case 'Tab':
+        console.log('submit');
+        break;
+      case 'ArrowUp':
+      case 'ArrowDown':
+        this.changeSelectedHash((key === 'ArrowUp') * 1);
+        break;
+    }
+  }
 
+  changeSelectedHash (increment) {
+    let selectedHash = this.#state.selectedHash + increment;
+    if (selectedHash < 0) selectedHash = this.hashTagsCount - 1;
+    if (selectedHash >= this.hashTagsCount) selectedHash = 0;
+    this.setState({
+      ...this.#state,
+      selectedHash
+    });
   }
 
   searchResult = e => {
-
-  }
-
-  searchHash = e => {
-
+    EventBus.$emit('searchPaper', this.#state.hashTags)
   }
 
   removeHash = e => {

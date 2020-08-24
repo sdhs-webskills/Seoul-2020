@@ -1,5 +1,5 @@
-import { Papers } from "./components/Papers";
-import { PapersService } from "./services";
+import { Papers } from "./components/Papers.js";
+import { PapersService } from "./services/PapersService.js";
 
 window.onload = async () => {
 	await PapersService.load();
