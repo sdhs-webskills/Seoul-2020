@@ -13,9 +13,10 @@ export class HashTagInput {
   constructor (wrapper) {
     this.#wrapper = wrapper;
     this.#target = {
-      searchedHashTags: $('.search-list', this.#wrapper),
-      appendedHashTags: $('.appendHash', this.#wrapper),
-      appendedHashError: $('.appendHashErr', this.#wrapper),
+      searchedHashTags: $('.search-list', wrapper),
+      appendedHashTags: $('.appendHash', wrapper),
+      appendedHashError: $('.appendHashErr', wrapper),
+      input: $('input[name=search]', wrapper)
     }
     this.setState({
       searched: [],
@@ -32,9 +33,11 @@ export class HashTagInput {
     return this.#state.searched.length;
   }
 
-  get selected () {
+  get hashTagValue () {
     const { searched, selectedHash } = this.#state;
-    return searched[selectedHash];
+    return selectedHash !== -1
+            ? searched[selectedHash]
+            : `#${this.#target.input.val()}`;
   }
 
   #render () {
@@ -88,25 +91,27 @@ export class HashTagInput {
     });
   }
 
-  selectHash = ({ key }) => {
+  selectHash = e => {
+    const { key } = e;
     try {
       switch (key) {
         case ' ':
         case 'Tab':
-          console.log('submit');
-          break;
-        case 'ArrowUp':
-        case 'ArrowDown':
-          this.changeSelectedHash(key === 'ArrowDown' ? 1 : -1);
-          break;
         case 'Enter':
           this.validate();
           this.setState({
             ...this.#state,
             selectedHash: -1,
             searched: [],
-            appended: [ ...this.#state.appended, this.selected ]
+            appended: [ ...this.#state.appended, this.hashTagValue ]
           })
+          this.#target.input.val('');
+          e.preventDefault();
+          break;
+        case 'ArrowUp':
+        case 'ArrowDown':
+          this.changeSelectedHash(key === 'ArrowDown' ? 1 : -1);
+          e.preventDefault();
           break;
       }
     } catch (tagSearchError) {
@@ -119,7 +124,7 @@ export class HashTagInput {
     if (appended.length === 10) {
       throw error.maximum;
     }
-    if (appended.find(v => v.includes(this.selected))) {
+    if (appended.find(v => v === this.hashTagValue)) {
       throw error.already;
     }
   }
