@@ -1,5 +1,5 @@
 import { EventBus } from "../EventBus.js";
-import {HashService} from "../services/HashService";
+import { HashService } from "../services/HashService.js";
 
 export class HashTagInput {
 
@@ -13,8 +13,13 @@ export class HashTagInput {
       appendedHashError: $('.appendHashErr', this.#wrapper),
     }
     this.setState({
-      hashTags: [],
+      searched: [],
       selectedHash: -1,
+      appended: [],
+      tagSearchError: {
+        state: 'normal',
+        text: '',
+      },
     });
   }
 
@@ -23,21 +28,31 @@ export class HashTagInput {
   }
 
   #render () {
-    const { hashTags, selectedHash } = this.#state;
+    const { searched, selectedHash, appended, tagSearchError } = this.#state;
     const { searchedHashTags, appendedHashTags, appendedHashError } = this.#target;
 
     searchedHashTags.html(
-      hashTags.map((hash, key) => `
-        <div class="hash flex center align left rel" ${key === selectedHash ? ` style="background: #6898d6; color: #eee"` : ''}>
-          <p>${hash}</p>
-          <button class="removeHash">X</button>
+      searched.map((tag, key) => `
+        <div class="normal list rel" ${key === selectedHash ? ` style="background: #6898d6; color: #eee"` : ''}>
+          ${tag}
         </div>
-      `)
+      `).join('')
     );
 
-    appendedHashTags.html();
+    appendedHashTags.html(
+      appended.map(tag => `
+        <div class="hash flex center align left rel">
+          <p>${tag}</p>
+          <button class="removeHash">X</button>
+        </div>
+      `).join('')
+    );
 
-    appendedHashError.html();
+    const { state, text } = tagSearchError;
+    appendedHashError.empty();
+    if (state !== 'normal') {
+      appendedHashError.html(`<p class="${state}">${text}</p>`);
+    }
 
   }
 
@@ -50,9 +65,15 @@ export class HashTagInput {
         .on('click', '.removeHash', this.removeHash);
   }
 
-  searchHash = ({ target: { value: query } }) => {
-    HashService.get()
+  searchHash = ({ target }) => {
+    const query = target.value.replace(/([^a-zA-Z0-9ㄱ-ㅎ가-힣_]+)/gi, '');
+    target.value = query;
+    if (query.length < 2) return;
+    const searched = HashService.get().filter(tag => tag.indexOf(query) === 1);
+    this.setState({ ...this.#state, searched });
   }
+
+  validate () {}
 
   selectHash = ({ key }) => {
     switch (key) {
