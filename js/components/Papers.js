@@ -13,7 +13,7 @@ export class Papers {
       papers: PapersService.get(),
     });
 
-    EventBus.$on('search', papers => this.setState({ papers }));
+    EventBus.$on('search', this.search);
   }
 
   #render () {
@@ -53,5 +53,9 @@ export class Papers {
     }
     this.#render();
     this.#event();
+  }
+
+  search = hashList => {
+
   }
 }

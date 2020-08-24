@@ -1,10 +1,9 @@
 export class HashTagInput {
 
-  #target; #state; #searchInput;
+  #target; #state;
 
-  constructor () {
-    this.#target = $('.searchCover .search-list');
-    this.#hashInput = new HashInput($('.searchCover input[search]'));
+  constructor (target) {
+    this.#target = target;
     this.setState({
       hashList: [],
       selectedHash: -1,
@@ -25,14 +24,11 @@ export class HashTagInput {
 
   #event () {
 
-    $(document)
-      .on("input", `${this.target} input[name='search']`, this.Search)
-      .on("keydown", `${this.target} input[name='search']`, this.keyDown)
-      .on("click", this.target+" .searchBtn i", this.Result)
-      .on("click", ".removeHash", this.removeHash)
-
-    this.#searchInput.next('.searchBtn')
-        .on('click', this.searching);
+    this.#target
+        .on('input', `input[name='search']`, this.searchHash)
+        .on('keydown', `input[name='search']`, this.selectHash)
+        .on('click', '.searchBtn i', this.searchResult)
+        .on('click', '.removeHash', this.removeHash)
 
   }
 
@@ -40,11 +36,15 @@ export class HashTagInput {
 
   }
 
-  filterHash = e => {
+  searchResult = e => {
 
   }
 
-  searching = e => {
+  searchHash = e => {
+
+  }
+
+  removeHash = e => {
 
   }
 
