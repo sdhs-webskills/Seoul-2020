@@ -6,7 +6,7 @@ import { EventBus } from '../EventBus.js';
 export class Papers {
   #state; #target; #searchInput;
 
-  constructor (target = $(".contents .cover"), hashTarget = $('.searchCover')) {
+  constructor (target = $(".contents .cover"), hashTarget = $('.hashWrapper')) {
     this.#target = target;
     this.#searchInput = new HashTagInput(hashTarget);
     this.setState({
