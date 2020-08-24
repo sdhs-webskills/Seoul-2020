@@ -1,4 +1,5 @@
 import { EventBus } from "../EventBus.js";
+import {HashService} from "../services/HashService";
 
 export class HashTagInput {
 
@@ -6,7 +7,11 @@ export class HashTagInput {
 
   constructor (wrapper) {
     this.#wrapper = wrapper;
-    this.#target = $('.search-list', this.#wrapper);
+    this.#target = {
+      searchedHashTags: $('.search-list', this.#wrapper),
+      appendedHashTags: $('.appendHash', this.#wrapper),
+      appendedHashError: $('.appendHashErr', this.#wrapper),
+    }
     this.setState({
       hashTags: [],
       selectedHash: -1,
@@ -19,7 +24,9 @@ export class HashTagInput {
 
   #render () {
     const { hashTags, selectedHash } = this.#state;
-    this.#target.html(
+    const { searchedHashTags, appendedHashTags, appendedHashError } = this.#target;
+
+    searchedHashTags.html(
       hashTags.map((hash, key) => `
         <div class="hash flex center align left rel" ${key === selectedHash ? ` style="background: #6898d6; color: #eee"` : ''}>
           <p>${hash}</p>
@@ -27,6 +34,11 @@ export class HashTagInput {
         </div>
       `)
     );
+
+    appendedHashTags.html();
+
+    appendedHashError.html();
+
   }
 
   #event () {
@@ -38,8 +50,8 @@ export class HashTagInput {
         .on('click', '.removeHash', this.removeHash);
   }
 
-  searchHash = () => {
-
+  searchHash = ({ target: { value: query } }) => {
+    HashService.get()
   }
 
   selectHash = ({ key }) => {
